@@ -180,12 +180,26 @@ Item {
                     required property var modelData
                     required property int index
                     property int monitorId: windowData?.monitor
-                    property var monitor: HyprlandData.monitors[monitorId]
+                    property var monitor: HyprlandData.monitors.find(m => m.id === monitorId)
                     property var address: `0x${modelData.HyprlandToplevel.address}`
                     windowData: windowByAddress[address]
                     toplevel: modelData
-                    monitorData: HyprlandData.monitors[monitorId]
-                    scale: root.scale
+                    monitorData: monitor
+                    
+                    // Calculate scale relative to window's source monitor
+                    property real sourceMonitorWidth: (monitor?.transform % 2 === 1) ? 
+                        (monitor?.height ?? 1920) / (monitor?.scale ?? 1) - (monitor?.reserved?.[0] ?? 0) - (monitor?.reserved?.[2] ?? 0) :
+                        (monitor?.width ?? 1920) / (monitor?.scale ?? 1) - (monitor?.reserved?.[0] ?? 0) - (monitor?.reserved?.[2] ?? 0)
+                    property real sourceMonitorHeight: (monitor?.transform % 2 === 1) ?
+                        (monitor?.width ?? 1080) / (monitor?.scale ?? 1) - (monitor?.reserved?.[1] ?? 0) - (monitor?.reserved?.[3] ?? 0) :
+                        (monitor?.height ?? 1080) / (monitor?.scale ?? 1) - (monitor?.reserved?.[1] ?? 0) - (monitor?.reserved?.[3] ?? 0)
+                    
+                    // Scale windows to fit the workspace size, accounting for different monitor sizes
+                    scale: Math.min(
+                        root.workspaceImplicitWidth / sourceMonitorWidth,
+                        root.workspaceImplicitHeight / sourceMonitorHeight
+                    )
+                    
                     availableWorkspaceWidth: root.workspaceImplicitWidth
                     availableWorkspaceHeight: root.workspaceImplicitHeight
                     widgetMonitorId: root.monitor.id
