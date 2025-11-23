@@ -79,10 +79,10 @@ Scope {
                 focus: GlobalStates.overviewOpen
 
                 Keys.onPressed: event => {
-                    if (event.key === Qt.Key_Escape) {
+                    if (event.key === Qt.Key_Escape || event.key === Qt.Key_Return) {
                         GlobalStates.overviewOpen = false;
                         event.accepted = true;
-                    } else if (event.key === Qt.Key_Left || event.key === Qt.Key_Right) {
+                    } else if (event.key === Qt.Key_Left || event.key === Qt.Key_Right || event.key === Qt.Key_Up || event.key === Qt.Key_Down) {
                         const workspacesPerGroup = Config.options.overview.rows * Config.options.overview.columns;
                         const currentId = Hyprland.focusedMonitor?.activeWorkspace?.id ?? 1;
                         const currentGroup = Math.floor((currentId - 1) / workspacesPerGroup);
@@ -93,9 +93,15 @@ Scope {
                         if (event.key === Qt.Key_Left) {
                             targetId = currentId - 1;
                             if (targetId < minWorkspaceId) targetId = maxWorkspaceId;
-                        } else {
+                        } else if (event.key === Qt.Key_Right) {
                             targetId = currentId + 1;
                             if (targetId > maxWorkspaceId) targetId = minWorkspaceId;
+                        } else if (event.key === Qt.Key_Up) {
+                            targetId = currentId - Config.options.overview.columns;
+                            if (targetId < minWorkspaceId) targetId += workspacesPerGroup;
+                        } else {
+                            targetId = currentId + Config.options.overview.columns;
+                            if (targetId > maxWorkspaceId) targetId -= workspacesPerGroup;
                         }
                         
                         Hyprland.dispatch("workspace " + targetId);
