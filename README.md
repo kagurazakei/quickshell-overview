@@ -29,7 +29,7 @@ https://github.com/user-attachments/assets/79ceb141-6b9e-4956-8e09-aaf72b66550c
 - 🎯 Click windows to focus them
 - 🖱️ Middle-click windows to close them  
 - 🔄 Drag and drop windows between workspaces
-- ⌨️ Keyboard navigation (Left/Right arrows to switch workspaces, Escape to close)
+- ⌨️ Keyboard navigation (Arrow keys to switch workspaces, Escape/Enter to close)
 - 💡 Hover tooltips showing window information
 - 🎨 Material Design 3 theming
 - ⚡ Smooth animations and transitions
@@ -75,8 +75,9 @@ qs -c overview &
 | Action | Description |
 |--------|-------------|
 | **Super + Tab** | Toggle the overview |
-| **Left/Right Arrow Keys** | Navigate between workspace groups |
-| **Escape** | Close the overview |
+| **Left/Right Arrow Keys** | Navigate between workspaces horizontally |
+| **Up/Down Arrow Keys** | Navigate between workspace rows |
+| **Escape / Enter** | Close the overview |
 | **Click workspace** | Switch to that workspace |
 | **Click window** | Focus that window |
 | **Middle-click window** | Close that window |
