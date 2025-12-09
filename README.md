@@ -40,7 +40,7 @@ https://github.com/user-attachments/assets/79ceb141-6b9e-4956-8e09-aaf72b66550c
 
 - **Hyprland** compositor
 - **Quickshell** ([installation guide](https://quickshell.org/docs/v0.1.0/guide/install-setup/))
-- **Qt 6** with modules: QtQuick, QtQuick.Controls, Qt5Compat.GraphicalEffects
+- **Qt 6** with modules: QtQuick, QtQuick.Controls
 
 ### Setup
 
@@ -68,6 +68,27 @@ https://github.com/user-attachments/assets/79ceb141-6b9e-4956-8e09-aaf72b66550c
 
 ```bash
 qs -c overview &
+```
+
+### NixOS
+
+For NixOS users, ensure Quickshell has access to required Qt6 modules:
+
+```nix
+# In your configuration.nix or home-manager config
+environment.systemPackages = with pkgs; [
+  quickshell
+  qt6.qtwayland
+];
+```
+
+If you're using home-manager:
+
+```nix
+home.packages = with pkgs; [
+  quickshell
+  qt6.qtwayland
+];
 ```
 
 ## 🎮 Usage
@@ -139,7 +160,6 @@ Edit `~/.config/quickshell/overview/common/Appearance.qml` to customize:
   - QtQuick
   - QtQuick.Controls
   - QtQuick.Layouts
-  - Qt5Compat.GraphicalEffects
   - Quickshell.Wayland
   - Quickshell.Hyprland
 
