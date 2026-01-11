@@ -202,7 +202,9 @@ Item {
                     
                     availableWorkspaceWidth: root.workspaceImplicitWidth
                     availableWorkspaceHeight: root.workspaceImplicitHeight
+                    widgetMonitor: root.monitor
                     widgetMonitorId: root.monitor.id
+                    widgetMonitorData: root.monitorData
 
                     property bool atInitPosition: (initX == x && initY == y)
 
@@ -217,8 +219,9 @@ Item {
                         repeat: false
                         running: false
                         onTriggered: {
-                            window.x = Math.round(Math.max((windowData?.at[0] - (monitor?.x ?? 0) - (monitorData?.reserved?.[0] ?? 0)) * root.scale, 0) + xOffset)
-                            window.y = Math.round(Math.max((windowData?.at[1] - (monitor?.y ?? 0) - (monitorData?.reserved?.[1] ?? 0)) * root.scale, 0) + yOffset)
+                            // Force position update - initX/initY should handle this reactively
+                            window.x = window.initX
+                            window.y = window.initY
                         }
                     }
 
