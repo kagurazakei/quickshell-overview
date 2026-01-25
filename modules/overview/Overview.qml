@@ -92,16 +92,31 @@ Scope {
                     const currentGroup = Math.floor((currentId - 1) / workspacesPerGroup);
                     const minWorkspaceId = currentGroup * workspacesPerGroup + 1;
                     const maxWorkspaceId = minWorkspaceId + workspacesPerGroup - 1;
+                    
+                    // When hideEmptyRows is enabled, constrain navigation to current row
+                    const currentRow = Math.floor((currentId - minWorkspaceId) / Config.options.overview.columns);
+                    const rowMinId = minWorkspaceId + currentRow * Config.options.overview.columns;
+                    const rowMaxId = rowMinId + Config.options.overview.columns - 1;
 
                     let targetId = null;
 
                     // Arrow keys and vim-style hjkl
                     if (event.key === Qt.Key_Left || event.key === Qt.Key_H) {
                         targetId = currentId - 1;
-                        if (targetId < minWorkspaceId) targetId = maxWorkspaceId;
+                        // Wrap within visible workspaces
+                        if (Config.options.overview.hideEmptyRows) {
+                            if (targetId < rowMinId) targetId = rowMaxId;
+                        } else {
+                            if (targetId < minWorkspaceId) targetId = maxWorkspaceId;
+                        }
                     } else if (event.key === Qt.Key_Right || event.key === Qt.Key_L) {
                         targetId = currentId + 1;
-                        if (targetId > maxWorkspaceId) targetId = minWorkspaceId;
+                        // Wrap within visible workspaces
+                        if (Config.options.overview.hideEmptyRows) {
+                            if (targetId > rowMaxId) targetId = rowMinId;
+                        } else {
+                            if (targetId > maxWorkspaceId) targetId = minWorkspaceId;
+                        }
                     } else if (event.key === Qt.Key_Up || event.key === Qt.Key_K) {
                         targetId = currentId - Config.options.overview.columns;
                         if (targetId < minWorkspaceId) targetId += workspacesPerGroup;

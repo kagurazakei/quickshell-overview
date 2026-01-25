@@ -98,14 +98,16 @@ home.packages = with pkgs; [
 | Action | Description |
 |--------|-------------|
 | **Super + Tab** | Toggle the overview |
-| **Arrow Keys** | Navigate between workspaces |
-| **h / j / k / l** | Vim-style navigation (left/down/up/right) |
+| **Arrow Keys / h/l** | Navigate left/right within current row* |
+| **Up/Down / j/k** | Navigate between workspace rows |
 | **1-9, 0** | Jump to Nth workspace in current group (0 = 10th) |
 | **Escape / Enter** | Close the overview |
 | **Click workspace** | Switch to that workspace |
 | **Click window** | Focus that window |
 | **Middle-click window** | Close that window |
 | **Drag window** | Move window to different workspace |
+
+> *When `hideEmptyRows` is enabled, left/right navigation wraps within the current visible row for better UX
 
 ---
 
@@ -137,6 +139,7 @@ property QtObject overview: QtObject {
 - Set `hideEmptyRows: true` to automatically hide rows that have no windows
 - Keeps your overview clean by only showing rows with active workspaces
 - The current workspace row is always visible, even if empty
+- Arrow key navigation (left/right) stays within the current row when enabled
 - Great for 2-row setups where you rarely use workspaces 6-10
 
 ### Position
