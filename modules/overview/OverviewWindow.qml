@@ -11,33 +11,18 @@ Item { // Window
     property var toplevel
     property var windowData
     property var monitorData
-    property var widgetMonitor
-    property var widgetMonitorData
     property var scale
     property var availableWorkspaceWidth
     property var availableWorkspaceHeight
     property bool restrictToWorkspace: true
-    
-    // Calculate width/height ratios accounting for monitor transforms
-    property real widthRatio: {
-        const widgetWidth = (widgetMonitorData?.transform ?? 0) % 2 === 1 ? widgetMonitor?.height : widgetMonitor?.width
-        const monitorWidth = (monitorData?.transform ?? 0) % 2 === 1 ? monitorData?.height : monitorData?.width
-        return ((widgetWidth ?? 1920) * (monitorData?.scale ?? 1)) / ((monitorWidth ?? 1920) * (widgetMonitor?.scale ?? 1))
-    }
-    property real heightRatio: {
-        const widgetHeight = (widgetMonitorData?.transform ?? 0) % 2 === 1 ? widgetMonitor?.width : widgetMonitor?.height
-        const monitorHeight = (monitorData?.transform ?? 0) % 2 === 1 ? monitorData?.width : monitorData?.height
-        return ((widgetHeight ?? 1080) * (monitorData?.scale ?? 1)) / ((monitorHeight ?? 1080) * (widgetMonitor?.scale ?? 1))
-    }
-    
+    property real initX: Math.max(((windowData?.at[0] ?? 0) - (monitorData?.x ?? 0) - (monitorData?.reserved?.[0] ?? 0)) * root.scale, 0) + xOffset
+    property real initY: Math.max(((windowData?.at[1] ?? 0) - (monitorData?.y ?? 0) - (monitorData?.reserved?.[1] ?? 0)) * root.scale, 0) + yOffset
     property real xOffset: 0
     property real yOffset: 0
     property int widgetMonitorId: 0
-    property real initX: Math.max(((windowData?.at[0] ?? 0) - (monitorData?.x ?? 0) - (monitorData?.reserved?.[0] ?? 0)) * widthRatio * root.scale, 0) + xOffset
-    property real initY: Math.max(((windowData?.at[1] ?? 0) - (monitorData?.y ?? 0) - (monitorData?.reserved?.[1] ?? 0)) * heightRatio * root.scale, 0) + yOffset
     
-    property var targetWindowWidth: (windowData?.size[0] ?? 100) * scale * widthRatio
-    property var targetWindowHeight: (windowData?.size[1] ?? 100) * scale * heightRatio
+    property var targetWindowWidth: (windowData?.size[0] ?? 100) * scale
+    property var targetWindowHeight: (windowData?.size[1] ?? 100) * scale
     property bool hovered: false
     property bool pressed: false
 
@@ -52,8 +37,8 @@ Item { // Window
     
     x: initX
     y: initY
-    width: Math.min(targetWindowWidth, availableWorkspaceWidth)
-    height: Math.min(targetWindowHeight, availableWorkspaceHeight)
+    width: Math.min((windowData?.size[0] ?? 100) * root.scale, availableWorkspaceWidth)
+    height: Math.min((windowData?.size[1] ?? 100) * root.scale, availableWorkspaceHeight)
     opacity: (windowData?.monitor ?? -1) == widgetMonitorId ? 1 : 0.4
 
     clip: true

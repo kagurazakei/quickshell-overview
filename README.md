@@ -26,7 +26,6 @@ https://github.com/user-attachments/assets/79ceb141-6b9e-4956-8e09-aaf72b66550c
 ## ✨ Features
 
 - 🖼️ Visual workspace overview showing all workspaces and windows
-- 🖥️ Multi-monitor support with proper scaling and vertical/rotated monitors
 - 🎯 Click windows to focus them
 - 🖱️ Middle-click windows to close them  
 - 🔄 Drag and drop windows between workspaces
