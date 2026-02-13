@@ -20,6 +20,22 @@ Item { // Window
     property real xOffset: 0
     property real yOffset: 0
     property int widgetMonitorId: 0
+    property int normalizedMonitorTransform: {
+        const rawTransform = Number(monitorData?.transform ?? 0)
+        if (isNaN(rawTransform)) return 0
+        return ((Math.trunc(rawTransform) % 8) + 8) % 8
+    }
+    property int baseMonitorTransform: normalizedMonitorTransform % 4
+    property bool previewFlipped: normalizedMonitorTransform >= 4
+    property bool previewQuarterTurn: baseMonitorTransform === 1 || baseMonitorTransform === 3
+    property int previewRotation: {
+        switch (baseMonitorTransform) {
+        case 1: return 90
+        case 2: return 180
+        case 3: return 270
+        default: return 0
+        }
+    }
     
     property var targetWindowWidth: (windowData?.size[0] ?? 100) * scale
     property var targetWindowHeight: (windowData?.size[1] ?? 100) * scale
@@ -56,45 +72,60 @@ Item { // Window
         animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
     }
 
-    ScreencopyView {
-        id: windowPreview
+    Item {
+        id: previewContainer
         anchors.fill: parent
-        captureSource: GlobalStates.overviewOpen ? root.toplevel : null
-        live: true
+        clip: true
 
-        Rectangle {
-            anchors.fill: parent
-            radius: Appearance.rounding.windowRounding * root.scale
-            color: pressed ? ColorUtils.transparentize(Appearance.colors.colLayer2Active, 0.5) : 
-                hovered ? ColorUtils.transparentize(Appearance.colors.colLayer2Hover, 0.7) : 
-                ColorUtils.transparentize(Appearance.colors.colLayer2)
-            border.color : ColorUtils.transparentize(Appearance.m3colors.m3outline, 0.7)
-            border.width : 1
+        ScreencopyView {
+            id: windowPreview
+            anchors.centerIn: parent
+            width: root.previewQuarterTurn ? parent.height : parent.width
+            height: root.previewQuarterTurn ? parent.width : parent.height
+            rotation: root.previewRotation
+            transform: Scale {
+                origin.x: windowPreview.width / 2
+                origin.y: windowPreview.height / 2
+                xScale: root.previewFlipped ? -1 : 1
+                yScale: 1
+            }
+            captureSource: GlobalStates.overviewOpen ? root.toplevel : null
+            live: true
         }
+    }
 
-        ColumnLayout {
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.right: parent.right
-            spacing: Appearance.font.pixelSize.smaller * 0.5
+    Rectangle {
+        anchors.fill: parent
+        radius: Appearance.rounding.windowRounding * root.scale
+        color: pressed ? ColorUtils.transparentize(Appearance.colors.colLayer2Active, 0.5) :
+            hovered ? ColorUtils.transparentize(Appearance.colors.colLayer2Hover, 0.7) :
+            ColorUtils.transparentize(Appearance.colors.colLayer2)
+        border.color : ColorUtils.transparentize(Appearance.m3colors.m3outline, 0.7)
+        border.width : 1
+    }
 
-            Image {
-                id: windowIcon
-                property var iconSize: {
-                    return Math.min(targetWindowWidth, targetWindowHeight) * (root.compactMode ? root.iconToWindowRatioCompact : root.iconToWindowRatio) / (root.monitorData?.scale ?? 1);
-                }
-                Layout.alignment: Qt.AlignHCenter
-                source: root.iconPath
-                width: iconSize
-                height: iconSize
-                sourceSize: Qt.size(iconSize, iconSize)
+    ColumnLayout {
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: parent.left
+        anchors.right: parent.right
+        spacing: Appearance.font.pixelSize.smaller * 0.5
 
-                Behavior on width {
-                    animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
-                }
-                Behavior on height {
-                    animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
-                }
+        Image {
+            id: windowIcon
+            property var iconSize: {
+                return Math.min(targetWindowWidth, targetWindowHeight) * (root.compactMode ? root.iconToWindowRatioCompact : root.iconToWindowRatio) / (root.monitorData?.scale ?? 1);
+            }
+            Layout.alignment: Qt.AlignHCenter
+            source: root.iconPath
+            width: iconSize
+            height: iconSize
+            sourceSize: Qt.size(iconSize, iconSize)
+
+            Behavior on width {
+                animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
+            }
+            Behavior on height {
+                animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
             }
         }
     }
