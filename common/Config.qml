@@ -120,6 +120,18 @@ Singleton {
             property real workspaceSpacing: root.readReal("overview.workspaceSpacing", 5)
             property real backgroundPadding: root.readReal("overview.backgroundPadding", 10)
             property real workspaceNumberBaseSize: root.readReal("overview.workspaceNumberBaseSize", 250)
+            property QtObject effects: QtObject {
+                property bool enableBackdrop: root.readBool("overview.effects.enableBackdrop", false)
+                property real backdropOpacity: root.readReal("overview.effects.backdropOpacity", 0.28)
+                property real panelOpacity: root.readReal("overview.effects.panelOpacity", 0.92)
+                property real workspaceOpacity: root.readReal("overview.effects.workspaceOpacity", 0.86)
+                property real windowOverlayOpacity: root.readReal("overview.effects.windowOverlayOpacity", 0.22)
+                property bool enableBlur: root.readBool("overview.effects.enableBlur", false)
+                property bool glassMode: root.readBool("overview.effects.glassMode", false)
+                property real glassTintStrength: root.readReal("overview.effects.glassTintStrength", 0.35)
+                property real glassBorderOpacity: root.readReal("overview.effects.glassBorderOpacity", 0.72)
+                property real glassShineOpacity: root.readReal("overview.effects.glassShineOpacity", 0.14)
+            }
         }
 
         property QtObject position: QtObject {

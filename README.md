@@ -186,6 +186,18 @@ Edit `~/.config/quickshell/overview/config.json`:
     "previewMode": "live",
     "includeInactiveMonitorPreviews": true,
     "previewRecaptureDelayMs": 60,
+    "effects": {
+      "enableBackdrop": false,
+      "backdropOpacity": 0.28,
+      "panelOpacity": 0.92,
+      "workspaceOpacity": 0.86,
+      "windowOverlayOpacity": 0.22,
+      "enableBlur": false,
+      "glassMode": false,
+      "glassTintStrength": 0.35,
+      "glassBorderOpacity": 0.72,
+      "glassShineOpacity": 0.14
+    },
     "workspaceSpacing": 5,
     "backgroundPadding": 10,
     "workspaceNumberBaseSize": 250
@@ -200,6 +212,7 @@ Edit `~/.config/quickshell/overview/config.json`:
 - **Reverse order?** Set `orderRightLeft` and/or `orderBottomUp` to `true`
 - **Per-monitor workspace groups?** Enable `useWorkspaceMap` and set `workspaceMap` (e.g. `[0,10]`)
 - **Lower memory use?** Set `previewMode` to `event` and `includeInactiveMonitorPreviews` to `false`
+- **Transparency / blur?** Tune `overview.effects.*` (details below)
 
 **Hide empty workspace rows:**
 - Set `hideEmptyRows: true` to automatically hide rows that have no windows
@@ -256,6 +269,67 @@ Increase `topMargin` to move the overview down. Decrease it to move up.
 - `overview.includeInactiveMonitorPreviews`: when `false`, only current monitor windows get preview capture
 - `overview.previewRecaptureDelayMs`: delay used for event-mode snapshot refresh (lower = faster updates)
 - `hacks.hyprlandEventDebounceMs`: coalesces Hyprland event refreshes to reduce command churn
+
+### Transparency & Blur
+
+```json
+{
+  "overview": {
+    "effects": {
+      "enableBackdrop": false,
+      "backdropOpacity": 0.28,
+      "panelOpacity": 0.92,
+      "workspaceOpacity": 0.86,
+      "windowOverlayOpacity": 0.22,
+      "enableBlur": false,
+      "glassMode": false,
+      "glassTintStrength": 0.35,
+      "glassBorderOpacity": 0.72,
+      "glassShineOpacity": 0.14
+    }
+  }
+}
+```
+
+- `enableBackdrop`: show/hide full-screen dim backdrop behind overview
+- `backdropOpacity`: opacity of backdrop dim layer (`0` to `1`)
+- `panelOpacity`: opacity of overview panel container (`0` to `1`)
+- `workspaceOpacity`: opacity of each workspace tile (`0` to `1`)
+- `windowOverlayOpacity`: opacity of the color tint over window previews (`0` to `1`)
+- `enableBlur`: switches layer namespace to `quickshell:overview-blur`
+- `glassMode`: enables a glass-like tint + softer transparency preset for panel/workspaces/windows
+- `glassTintStrength`: tint mixing strength for glass mode (`0` to `1`)
+- `glassBorderOpacity`: border alpha used by glass mode (`0` to `1`)
+- `glassShineOpacity`: top highlight strength for glass reflections (`0` to `1`)
+
+Stronger glass preset:
+
+```json
+{
+  "overview": {
+    "effects": {
+      "enableBackdrop": true,
+      "enableBlur": true,
+      "panelOpacity": 0.55,
+      "workspaceOpacity": 0.48,
+      "windowOverlayOpacity": 0.08,
+      "glassMode": true,
+      "glassTintStrength": 0.55,
+      "glassBorderOpacity": 0.85,
+      "glassShineOpacity": 0.32
+    }
+  }
+}
+```
+
+For Hyprland blur, add layer rules (example):
+
+```ini
+layerrule = blur, quickshell:overview-blur
+layerrule = ignorealpha 0.2, quickshell:overview-blur
+```
+
+If `enableBlur` is `false`, namespace remains `quickshell:overview`.
 
 Low-memory preset:
 
@@ -331,6 +405,18 @@ Low-memory preset:
     "previewMode": "live",
     "includeInactiveMonitorPreviews": true,
     "previewRecaptureDelayMs": 60,
+    "effects": {
+      "enableBackdrop": false,
+      "backdropOpacity": 0.28,
+      "panelOpacity": 0.92,
+      "workspaceOpacity": 0.86,
+      "windowOverlayOpacity": 0.22,
+      "enableBlur": false,
+      "glassMode": false,
+      "glassTintStrength": 0.35,
+      "glassBorderOpacity": 0.72,
+      "glassShineOpacity": 0.14
+    },
     "workspaceSpacing": 5,
     "backgroundPadding": 10,
     "workspaceNumberBaseSize": 250
