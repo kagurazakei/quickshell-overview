@@ -175,11 +175,11 @@ Scope {
                         targetVisualRow = (targetVisualRow - 1 + rows) % rows;
                     } else if (event.key === Qt.Key_Down || event.key === Qt.Key_J) {
                         targetVisualRow = (targetVisualRow + 1) % rows;
-                    }
+                    } else
 
                     // Number keys: jump to workspace within the current group
                     // 1-9 map to positions 1-9, 0 maps to position 10
-                    else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_9) {
+                    if (event.key >= Qt.Key_1 && event.key <= Qt.Key_9) {
                         const position = event.key - Qt.Key_0; // 1-9
                         if (position <= workspacesPerGroup) {
                             targetId = minWorkspaceId + position - 1;
@@ -191,12 +191,7 @@ Scope {
                         }
                     }
 
-                    if (targetId === null && (
-                        event.key === Qt.Key_Left || event.key === Qt.Key_H ||
-                        event.key === Qt.Key_Right || event.key === Qt.Key_L ||
-                        event.key === Qt.Key_Up || event.key === Qt.Key_K ||
-                        event.key === Qt.Key_Down || event.key === Qt.Key_J
-                    )) {
+                    if (targetId === null && (event.key === Qt.Key_Left || event.key === Qt.Key_H || event.key === Qt.Key_Right || event.key === Qt.Key_L || event.key === Qt.Key_Up || event.key === Qt.Key_K || event.key === Qt.Key_Down || event.key === Qt.Key_J)) {
                         const targetNormalRow = toNormalRow(targetVisualRow);
                         const targetNormalColumn = toNormalColumn(targetVisualColumn);
                         targetId = minWorkspaceId + targetNormalRow * columns + targetNormalColumn;
@@ -204,7 +199,7 @@ Scope {
 
                     if (targetId !== null) {
                         const clampedTarget = Math.max(minWorkspaceId, Math.min(maxWorkspaceId, targetId));
-                        Hyprland.dispatch("workspace " + clampedTarget);
+                        Hyprland.dispatch(`hl.dsp.focus({workspace = '${clampedTarget}'})`);
                         event.accepted = true;
                     }
                 }

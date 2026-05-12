@@ -30,12 +30,8 @@ Item {
     property real scale: Config.options.overview.scale
     property color activeBorderColor: Appearance.colors.colSecondary
 
-    property real workspaceImplicitWidth: Math.round((monitorData?.transform % 2 === 1) ?
-        ((monitor.height / monitor.scale - (monitorData?.reserved?.[0] ?? 0) - (monitorData?.reserved?.[2] ?? 0)) * root.scale) :
-        ((monitor.width / monitor.scale - (monitorData?.reserved?.[0] ?? 0) - (monitorData?.reserved?.[2] ?? 0)) * root.scale))
-    property real workspaceImplicitHeight: Math.round((monitorData?.transform % 2 === 1) ?
-        ((monitor.width / monitor.scale - (monitorData?.reserved?.[1] ?? 0) - (monitorData?.reserved?.[3] ?? 0)) * root.scale) :
-        ((monitor.height / monitor.scale - (monitorData?.reserved?.[1] ?? 0) - (monitorData?.reserved?.[3] ?? 0)) * root.scale))
+    property real workspaceImplicitWidth: Math.round((monitorData?.transform % 2 === 1) ? ((monitor.height / monitor.scale - (monitorData?.reserved?.[0] ?? 0) - (monitorData?.reserved?.[2] ?? 0)) * root.scale) : ((monitor.width / monitor.scale - (monitorData?.reserved?.[0] ?? 0) - (monitorData?.reserved?.[2] ?? 0)) * root.scale))
+    property real workspaceImplicitHeight: Math.round((monitorData?.transform % 2 === 1) ? ((monitor.width / monitor.scale - (monitorData?.reserved?.[1] ?? 0) - (monitorData?.reserved?.[3] ?? 0)) * root.scale) : ((monitor.height / monitor.scale - (monitorData?.reserved?.[1] ?? 0) - (monitorData?.reserved?.[3] ?? 0)) * root.scale))
 
     property real workspaceNumberMargin: 80
     property real workspaceNumberSize: Config.options.overview.workspaceNumberBaseSize * monitor.scale
@@ -103,7 +99,7 @@ Item {
             return [];
 
         const out = [];
-        const pushUnique = (value) => {
+        const pushUnique = value => {
             const cleaned = `${value ?? ""}`.trim();
             if (cleaned.length === 0 || out.includes(cleaned))
                 return;
@@ -202,7 +198,7 @@ Item {
         } else if (targetId > maxWorkspaceId) {
             targetId = minWorkspaceId;
         }
-        Hyprland.dispatch(`workspace ${targetId}`);
+        Hyprland.dispatch(`hl.dsp.focus({workspace = '${targetId}})'`);
     }
 
     function isSpecialWorkspace(windowData) {
@@ -314,7 +310,8 @@ Item {
 
     // Calculate which rows have windows or current workspace
     property var rowsWithContent: {
-        if (!Config.options.overview.hideEmptyRows) return null;
+        if (!Config.options.overview.hideEmptyRows)
+            return null;
 
         let rows = new Set();
         const firstWorkspace = root.workspaceGroup * root.workspacesShown + 1 + workspaceOffset;
@@ -371,19 +368,9 @@ Item {
         implicitHeight: contentLayout.implicitHeight + padding * 2
         radius: Appearance.rounding.screenRounding * root.scale + padding
         clip: true
-        color: ColorUtils.applyAlpha(
-            root.glassMode
-                ? ColorUtils.mix(Appearance.colors.colLayer0, Appearance.colors.colLayer1, 0.78 - root.glassTintStrength * 0.35)
-                : Appearance.colors.colLayer0,
-            root.effectivePanelOpacity
-        )
+        color: ColorUtils.applyAlpha(root.glassMode ? ColorUtils.mix(Appearance.colors.colLayer0, Appearance.colors.colLayer1, 0.78 - root.glassTintStrength * 0.35) : Appearance.colors.colLayer0, root.effectivePanelOpacity)
         border.width: 1
-        border.color: ColorUtils.applyAlpha(
-            root.glassMode
-                ? ColorUtils.mix(Appearance.colors.colLayer0Border, Appearance.m3colors.m3outline, 0.52)
-                : Appearance.colors.colLayer0Border,
-            root.glassMode ? root.glassBorderOpacity : root.effectivePanelOpacity
-        )
+        border.color: ColorUtils.applyAlpha(root.glassMode ? ColorUtils.mix(Appearance.colors.colLayer0Border, Appearance.m3colors.m3outline, 0.52) : Appearance.colors.colLayer0Border, root.glassMode ? root.glassBorderOpacity : root.effectivePanelOpacity)
 
         MouseArea {
             anchors.fill: parent
@@ -397,9 +384,18 @@ Item {
             radius: parent.radius
             color: "transparent"
             gradient: Gradient {
-                GradientStop { position: 0.0; color: ColorUtils.applyAlpha("#FFFFFF", root.glassShineOpacity * 0.35) }
-                GradientStop { position: 0.42; color: ColorUtils.applyAlpha("#FFFFFF", 0.0) }
-                GradientStop { position: 1.0; color: ColorUtils.applyAlpha("#000000", root.glassShineOpacity * 0.22) }
+                GradientStop {
+                    position: 0.0
+                    color: ColorUtils.applyAlpha("#FFFFFF", root.glassShineOpacity * 0.35)
+                }
+                GradientStop {
+                    position: 0.42
+                    color: ColorUtils.applyAlpha("#FFFFFF", 0.0)
+                }
+                GradientStop {
+                    position: 1.0
+                    color: ColorUtils.applyAlpha("#000000", root.glassShineOpacity * 0.22)
+                }
             }
         }
 
@@ -426,149 +422,144 @@ Item {
                 Repeater {
                     model: Config.options.overview.rows
                     delegate: RowLayout {
-                    id: row
-                    property int rowIndex: index
-                    spacing: workspaceSpacing
-                    visible: !Config.options.overview.hideEmptyRows ||
-                             (root.rowsWithContent && root.rowsWithContent.has(rowIndex))
-                    height: visible ? implicitHeight : 0
+                        id: row
+                        property int rowIndex: index
+                        spacing: workspaceSpacing
+                        visible: !Config.options.overview.hideEmptyRows || (root.rowsWithContent && root.rowsWithContent.has(rowIndex))
+                        height: visible ? implicitHeight : 0
 
-                    Repeater { // Workspace repeater
-                        model: Config.options.overview.columns
-                        Rectangle { // Workspace
-                            id: workspace
-                            property int colIndex: index
-                            property int workspaceValue: root.getWorkspaceInCell(rowIndex, colIndex)
-                            property bool showWallpaper: root.hasEmptyWorkspaceWallpaper
-                            property color defaultWorkspaceColor: Appearance.colors.colLayer1
-                            property color hoveredWorkspaceColor: ColorUtils.mix(defaultWorkspaceColor, Appearance.colors.colLayer1Hover, 0.1)
-                            property color hoveredBorderColor: Appearance.colors.colLayer2Hover
-                            property bool hoveredWhileDragging: false
+                        Repeater { // Workspace repeater
+                            model: Config.options.overview.columns
+                            Rectangle { // Workspace
+                                id: workspace
+                                property int colIndex: index
+                                property int workspaceValue: root.getWorkspaceInCell(rowIndex, colIndex)
+                                property bool showWallpaper: root.hasEmptyWorkspaceWallpaper
+                                property color defaultWorkspaceColor: Appearance.colors.colLayer1
+                                property color hoveredWorkspaceColor: ColorUtils.mix(defaultWorkspaceColor, Appearance.colors.colLayer1Hover, 0.1)
+                                property color hoveredBorderColor: Appearance.colors.colLayer2Hover
+                                property bool hoveredWhileDragging: false
 
-                            implicitWidth: root.workspaceImplicitWidth
-                            implicitHeight: root.workspaceImplicitHeight
-                            color: showWallpaper ? "transparent" : ColorUtils.applyAlpha(
-                                root.glassMode
-                                    ? ColorUtils.mix(hoveredWhileDragging ? hoveredWorkspaceColor : defaultWorkspaceColor, Appearance.colors.colLayer0, 0.46)
-                                    : (hoveredWhileDragging ? hoveredWorkspaceColor : defaultWorkspaceColor),
-                                root.effectiveWorkspaceOpacity
-                            )
-                            radius: Appearance.rounding.screenRounding * root.scale
-                            border.width: 2
-                            border.color: hoveredWhileDragging
-                                ? ColorUtils.applyAlpha(hoveredBorderColor, root.glassMode ? root.glassBorderOpacity : 1)
-                                : "transparent"
+                                implicitWidth: root.workspaceImplicitWidth
+                                implicitHeight: root.workspaceImplicitHeight
+                                color: showWallpaper ? "transparent" : ColorUtils.applyAlpha(root.glassMode ? ColorUtils.mix(hoveredWhileDragging ? hoveredWorkspaceColor : defaultWorkspaceColor, Appearance.colors.colLayer0, 0.46) : (hoveredWhileDragging ? hoveredWorkspaceColor : defaultWorkspaceColor), root.effectiveWorkspaceOpacity)
+                                radius: Appearance.rounding.screenRounding * root.scale
+                                border.width: 2
+                                border.color: hoveredWhileDragging ? ColorUtils.applyAlpha(hoveredBorderColor, root.glassMode ? root.glassBorderOpacity : 1) : "transparent"
 
-                            Image {
-                                id: workspaceWallpaper
-                                visible: workspace.showWallpaper
-                                anchors.fill: parent
-                                source: root.wallpaperSource(root.emptyWorkspaceWallpaperPath)
-                                fillMode: Image.PreserveAspectCrop
-                                asynchronous: true
-                                cache: true
-                                smooth: true
-                                mipmap: true
-                                layer.enabled: workspace.showWallpaper
-                                layer.smooth: true
-                                layer.effect: MultiEffect {
-                                    maskEnabled: true
-                                    maskSource: workspaceWallpaperMask
-                                    maskThresholdMin: 0.5
-                                    maskSpreadAtMin: 1.0
-                                }
-                            }
-
-                            Item {
-                                id: workspaceWallpaperMask
-                                anchors.fill: parent
-                                visible: false
-                                layer.enabled: true
-                                layer.smooth: true
-                                Rectangle {
+                                Image {
+                                    id: workspaceWallpaper
+                                    visible: workspace.showWallpaper
                                     anchors.fill: parent
-                                    radius: workspace.radius
+                                    source: root.wallpaperSource(root.emptyWorkspaceWallpaperPath)
+                                    fillMode: Image.PreserveAspectCrop
+                                    asynchronous: true
+                                    cache: true
+                                    smooth: true
+                                    mipmap: true
+                                    layer.enabled: workspace.showWallpaper
+                                    layer.smooth: true
+                                    layer.effect: MultiEffect {
+                                        maskEnabled: true
+                                        maskSource: workspaceWallpaperMask
+                                        maskThresholdMin: 0.5
+                                        maskSpreadAtMin: 1.0
+                                    }
                                 }
-                            }
 
-                            Rectangle {
-                                visible: workspace.showWallpaper
-                                anchors.fill: parent
-                                radius: parent.radius
-                                color: ColorUtils.applyAlpha(
-                                    root.glassMode
-                                        ? ColorUtils.mix(workspace.hoveredWhileDragging ? workspace.hoveredWorkspaceColor : workspace.defaultWorkspaceColor, Appearance.colors.colLayer0, 0.40)
-                                        : (workspace.hoveredWhileDragging ? workspace.hoveredWorkspaceColor : workspace.defaultWorkspaceColor),
-                                    workspace.hoveredWhileDragging
-                                        ? Math.min(0.28, root.emptyWorkspaceWallpaperOverlayOpacity + 0.08)
-                                        : root.emptyWorkspaceWallpaperOverlayOpacity
-                                )
-                            }
-
-                            Rectangle {
-                                visible: root.glassMode
-                                anchors.fill: parent
-                                radius: parent.radius
-                                color: "transparent"
-                                gradient: Gradient {
-                                    GradientStop { position: 0.0; color: ColorUtils.applyAlpha("#FFFFFF", root.glassShineOpacity * 0.22) }
-                                    GradientStop { position: 0.46; color: ColorUtils.applyAlpha("#FFFFFF", 0.0) }
-                                    GradientStop { position: 1.0; color: ColorUtils.applyAlpha("#000000", root.glassShineOpacity * 0.14) }
+                                Item {
+                                    id: workspaceWallpaperMask
+                                    anchors.fill: parent
+                                    visible: false
+                                    layer.enabled: true
+                                    layer.smooth: true
+                                    Rectangle {
+                                        anchors.fill: parent
+                                        radius: workspace.radius
+                                    }
                                 }
-                            }
 
-                            Rectangle {
-                                visible: root.glassMode
-                                anchors.fill: parent
-                                anchors.margins: 1
-                                radius: Math.max(parent.radius - 1, 0)
-                                color: "transparent"
-                                border.width: 1
-                                border.color: ColorUtils.applyAlpha("#FFFFFF", root.glassBorderOpacity * 0.16)
-                            }
-
-                            StyledText {
-                                anchors.centerIn: parent
-                                visible: !workspace.showWallpaper
-                                text: workspaceValue
-                                font {
-                                    pixelSize: root.workspaceNumberSize * root.scale
-                                    weight: Font.DemiBold
-                                    family: Appearance.font.family.expressive
+                                Rectangle {
+                                    visible: workspace.showWallpaper
+                                    anchors.fill: parent
+                                    radius: parent.radius
+                                    color: ColorUtils.applyAlpha(root.glassMode ? ColorUtils.mix(workspace.hoveredWhileDragging ? workspace.hoveredWorkspaceColor : workspace.defaultWorkspaceColor, Appearance.colors.colLayer0, 0.40) : (workspace.hoveredWhileDragging ? workspace.hoveredWorkspaceColor : workspace.defaultWorkspaceColor), workspace.hoveredWhileDragging ? Math.min(0.28, root.emptyWorkspaceWallpaperOverlayOpacity + 0.08) : root.emptyWorkspaceWallpaperOverlayOpacity)
                                 }
-                                color: ColorUtils.transparentize(Appearance.colors.colOnLayer1, 0.8)
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
 
-                            MouseArea {
-                                id: workspaceArea
-                                anchors.fill: parent
-                                acceptedButtons: Qt.LeftButton
-                                onClicked: {
-                                    if (root.draggingTargetWorkspace === -1) {
-                                        GlobalStates.overviewOpen = false
-                                        Hyprland.dispatch(`workspace ${workspaceValue}`)
+                                Rectangle {
+                                    visible: root.glassMode
+                                    anchors.fill: parent
+                                    radius: parent.radius
+                                    color: "transparent"
+                                    gradient: Gradient {
+                                        GradientStop {
+                                            position: 0.0
+                                            color: ColorUtils.applyAlpha("#FFFFFF", root.glassShineOpacity * 0.22)
+                                        }
+                                        GradientStop {
+                                            position: 0.46
+                                            color: ColorUtils.applyAlpha("#FFFFFF", 0.0)
+                                        }
+                                        GradientStop {
+                                            position: 1.0
+                                            color: ColorUtils.applyAlpha("#000000", root.glassShineOpacity * 0.14)
+                                        }
+                                    }
+                                }
+
+                                Rectangle {
+                                    visible: root.glassMode
+                                    anchors.fill: parent
+                                    anchors.margins: 1
+                                    radius: Math.max(parent.radius - 1, 0)
+                                    color: "transparent"
+                                    border.width: 1
+                                    border.color: ColorUtils.applyAlpha("#FFFFFF", root.glassBorderOpacity * 0.16)
+                                }
+
+                                StyledText {
+                                    anchors.centerIn: parent
+                                    visible: !workspace.showWallpaper
+                                    text: workspaceValue
+                                    font {
+                                        pixelSize: root.workspaceNumberSize * root.scale
+                                        weight: Font.DemiBold
+                                        family: Appearance.font.family.expressive
+                                    }
+                                    color: ColorUtils.transparentize(Appearance.colors.colOnLayer1, 0.8)
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                MouseArea {
+                                    id: workspaceArea
+                                    anchors.fill: parent
+                                    acceptedButtons: Qt.LeftButton
+                                    onClicked: {
+                                        if (root.draggingTargetWorkspace === -1) {
+                                            GlobalStates.overviewOpen = false;
+                                            Hyprland.dispatch(`hl.dsp.focus({workspace = ${workspaceValue}})`);
+                                        }
+                                    }
+                                }
+
+                                DropArea {
+                                    anchors.fill: parent
+                                    onEntered: {
+                                        root.draggingTargetWorkspace = workspaceValue;
+                                        root.draggingTargetSpecialWorkspace = "";
+                                        if (root.draggingFromWorkspace == root.draggingTargetWorkspace)
+                                            return;
+                                        hoveredWhileDragging = true;
+                                    }
+                                    onExited: {
+                                        hoveredWhileDragging = false;
+                                        if (root.draggingTargetWorkspace == workspaceValue)
+                                            root.draggingTargetWorkspace = -1;
                                     }
                                 }
                             }
-
-                            DropArea {
-                                anchors.fill: parent
-                                onEntered: {
-                                    root.draggingTargetWorkspace = workspaceValue
-                                    root.draggingTargetSpecialWorkspace = ""
-                                    if (root.draggingFromWorkspace == root.draggingTargetWorkspace) return;
-                                    hoveredWhileDragging = true
-                                }
-                                onExited: {
-                                    hoveredWhileDragging = false
-                                    if (root.draggingTargetWorkspace == workspaceValue) root.draggingTargetWorkspace = -1
-                                }
-                            }
-
                         }
-                    }
                     }
                 }
             }
@@ -588,12 +579,7 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius: Appearance.rounding.normal * root.scale
-                    color: ColorUtils.applyAlpha(
-                        root.glassMode
-                            ? ColorUtils.mix(Appearance.colors.colLayer0, Appearance.colors.colLayer1, 0.70)
-                            : Appearance.colors.colLayer1,
-                        root.glassMode ? Math.min(0.74, root.effectivePanelOpacity) : root.effectiveWorkspaceOpacity
-                    )
+                    color: ColorUtils.applyAlpha(root.glassMode ? ColorUtils.mix(Appearance.colors.colLayer0, Appearance.colors.colLayer1, 0.70) : Appearance.colors.colLayer1, root.glassMode ? Math.min(0.74, root.effectivePanelOpacity) : root.effectiveWorkspaceOpacity)
                     border.width: 1
                     border.color: ColorUtils.applyAlpha(Appearance.colors.colLayer2Border, root.glassMode ? root.glassBorderOpacity : 0.65)
 
@@ -635,10 +621,7 @@ Item {
                                 property string specialName: modelData
                                 property var specialGeometry: root.specialWorkspaceGeometry(specialName, root.monitor?.id)
                                 property color baseColor: ColorUtils.mix(Appearance.colors.colLayer1, Appearance.colors.colLayer0, 0.52)
-                                property bool hasRenderableGeometry: Number.isFinite(specialGeometry?.width)
-                                    && Number.isFinite(specialGeometry?.height)
-                                    && specialGeometry.width > 0
-                                    && specialGeometry.height > 0
+                                property bool hasRenderableGeometry: Number.isFinite(specialGeometry?.width) && Number.isFinite(specialGeometry?.height) && specialGeometry.width > 0 && specialGeometry.height > 0
                                 property bool showWallpaper: root.hasSpecialEmptyWorkspaceWallpaper
                                 property real geometryWidth: hasRenderableGeometry ? specialGeometry.width : Math.max(1, root.workspaceImplicitWidth / root.scale)
                                 property real geometryHeight: hasRenderableGeometry ? specialGeometry.height : Math.max(1, root.workspaceImplicitHeight / root.scale)
@@ -651,12 +634,7 @@ Item {
                                 implicitHeight: root.specialWorkspaceTileHeight
                                 radius: Appearance.rounding.screenRounding * root.scale
                                 clip: true
-                                color: showWallpaper ? "transparent" : ColorUtils.applyAlpha(
-                                    root.glassMode
-                                        ? ColorUtils.mix(baseColor, Appearance.colors.colLayer0, 0.44)
-                                        : baseColor,
-                                    root.effectiveWorkspaceOpacity
-                                )
+                                color: showWallpaper ? "transparent" : ColorUtils.applyAlpha(root.glassMode ? ColorUtils.mix(baseColor, Appearance.colors.colLayer0, 0.44) : baseColor, root.effectiveWorkspaceOpacity)
                                 border.width: 1
                                 border.color: ColorUtils.applyAlpha(Appearance.colors.colLayer2Border, root.glassMode ? root.glassBorderOpacity : 0.75)
 
@@ -675,12 +653,7 @@ Item {
                                     visible: specialWorkspaceTile.showWallpaper
                                     anchors.fill: parent
                                     radius: parent.radius
-                                    color: ColorUtils.applyAlpha(
-                                        root.glassMode
-                                            ? ColorUtils.mix(specialWorkspaceTile.baseColor, Appearance.colors.colLayer0, 0.40)
-                                            : specialWorkspaceTile.baseColor,
-                                        root.emptyWorkspaceWallpaperOverlayOpacity
-                                    )
+                                    color: ColorUtils.applyAlpha(root.glassMode ? ColorUtils.mix(specialWorkspaceTile.baseColor, Appearance.colors.colLayer0, 0.40) : specialWorkspaceTile.baseColor, root.emptyWorkspaceWallpaperOverlayOpacity)
                                 }
 
                                 MouseArea {
@@ -689,7 +662,7 @@ Item {
                                     onClicked: {
                                         if (root.draggingTargetWorkspace === -1 && !root.draggingTargetSpecialWorkspace) {
                                             GlobalStates.overviewOpen = false;
-                                            Hyprland.dispatch(`togglespecialworkspace ${specialWorkspaceTile.specialName}`);
+                                            Hyprland.dispatch(`hl.dsp.workspace.toggle_special(${specialWorkspaceTile.specialName})`);
                                         }
                                     }
                                 }
@@ -719,7 +692,7 @@ Item {
                                             values: {
                                                 if (!specialWorkspaceTile.hasRenderableGeometry)
                                                     return [];
-                                                return ToplevelManager.toplevels.values.filter((toplevel) => {
+                                                return ToplevelManager.toplevels.values.filter(toplevel => {
                                                     const address = `0x${toplevel.HyprlandToplevel.address}`;
                                                     const win = windowByAddress[address];
                                                     if ((win?.monitor ?? -1) !== (root.monitor?.id ?? -1))
@@ -784,60 +757,60 @@ Item {
                                                 onExited: hovered = false
                                                 acceptedButtons: Qt.LeftButton | Qt.MiddleButton
                                                 drag.target: parent
-                                                onPressed: (mouse) => {
-                                                    root.draggingFromWorkspace = -1
-                                                    root.draggingTargetSpecialWorkspace = ""
-                                                    specialWindow.pressed = true
-                                                    specialWindow.dragInProgress = true
-                                                    specialWindow.Drag.source = specialWindow
-                                                    specialWindow.Drag.hotSpot.x = mouse.x
-                                                    specialWindow.Drag.hotSpot.y = mouse.y
-                                                    specialWindow.moveToDragLayer()
-                                                    specialWindow.Drag.active = true
+                                                onPressed: mouse => {
+                                                    root.draggingFromWorkspace = -1;
+                                                    root.draggingTargetSpecialWorkspace = "";
+                                                    specialWindow.pressed = true;
+                                                    specialWindow.dragInProgress = true;
+                                                    specialWindow.Drag.source = specialWindow;
+                                                    specialWindow.Drag.hotSpot.x = mouse.x;
+                                                    specialWindow.Drag.hotSpot.y = mouse.y;
+                                                    specialWindow.moveToDragLayer();
+                                                    specialWindow.Drag.active = true;
                                                 }
                                                 onReleased: {
-                                                    const targetWorkspace = root.draggingTargetWorkspace
-                                                    const targetSpecialWorkspace = root.draggingTargetSpecialWorkspace
-                                                    specialWindow.pressed = false
-                                                    specialWindow.Drag.active = false
-                                                    specialWindow.dragInProgress = false
-                                                    root.draggingFromWorkspace = -1
-                                                    root.draggingTargetWorkspace = -1
-                                                    root.draggingTargetSpecialWorkspace = ""
+                                                    const targetWorkspace = root.draggingTargetWorkspace;
+                                                    const targetSpecialWorkspace = root.draggingTargetSpecialWorkspace;
+                                                    specialWindow.pressed = false;
+                                                    specialWindow.Drag.active = false;
+                                                    specialWindow.dragInProgress = false;
+                                                    root.draggingFromWorkspace = -1;
+                                                    root.draggingTargetWorkspace = -1;
+                                                    root.draggingTargetSpecialWorkspace = "";
                                                     if (targetSpecialWorkspace === root.createSpecialWorkspaceTarget) {
-                                                        const createdName = root.nextSpecialWorkspaceName()
-                                                        Hyprland.dispatch(`movetoworkspacesilent special:${createdName}, address:${specialWindow.windowData?.address}`)
-                                                        specialWindow.returnToHomeParent()
-                                                        specialWindow.x = specialWindow.initX
-                                                        specialWindow.y = specialWindow.initY
-                                                    }
-                                                    else if (targetSpecialWorkspace && targetSpecialWorkspace !== specialWorkspaceTile.specialName) {
-                                                        Hyprland.dispatch(`movetoworkspacesilent special:${targetSpecialWorkspace}, address:${specialWindow.windowData?.address}`)
-                                                        specialWindow.returnToHomeParent()
-                                                        specialWindow.x = specialWindow.initX
-                                                        specialWindow.y = specialWindow.initY
-                                                    }
-                                                    else if (targetWorkspace !== -1) {
-                                                        Hyprland.dispatch(`movetoworkspacesilent ${targetWorkspace}, address:${specialWindow.windowData?.address}`)
-                                                        specialWindow.returnToHomeParent()
-                                                        specialWindow.x = specialWindow.initX
-                                                        specialWindow.y = specialWindow.initY
-                                                    }
-                                                    else {
-                                                        specialWindow.returnToHomeParent()
-                                                        specialWindow.x = specialWindow.initX
-                                                        specialWindow.y = specialWindow.initY
+                                                        const createdName = root.nextSpecialWorkspaceName();
+                                                        //INFO: From special TO NEW special
+                                                        Hyprland.dispatch(`hl.dsp.window.move({workspace = 'special:${createdName}', follow = false, window = 'address:${specialWindow.windowData?.address}'})`);
+                                                        specialWindow.returnToHomeParent();
+                                                        specialWindow.x = specialWindow.initX;
+                                                        specialWindow.y = specialWindow.initY;
+                                                    } else if (targetSpecialWorkspace && targetSpecialWorkspace !== specialWorkspaceTile.specialName) {
+                                                        // Idk
+                                                        Hyprland.dispatch(`hl.dsp.window.move({workspace = 'special:${targetSpecialWorkspace}', follow = false, window = 'address:${specialWindow.windowData?.address}'})`);
+                                                        specialWindow.returnToHomeParent();
+                                                        specialWindow.x = specialWindow.initX;
+                                                        specialWindow.y = specialWindow.initY;
+                                                    } else if (targetWorkspace !== -1) {
+                                                        //INFO: From Special TO Normal workspace
+                                                        Hyprland.dispatch(`hl.dsp.window.move({workspace = '${targetWorkspace}', follow = false, window = 'address:${specialWindow.windowData?.address}'})`);
+                                                        specialWindow.returnToHomeParent();
+                                                        specialWindow.x = specialWindow.initX;
+                                                        specialWindow.y = specialWindow.initY;
+                                                    } else {
+                                                        specialWindow.returnToHomeParent();
+                                                        specialWindow.x = specialWindow.initX;
+                                                        specialWindow.y = specialWindow.initY;
                                                     }
                                                 }
-                                                onClicked: (event) => {
+                                                onClicked: event => {
                                                     if (!windowData)
                                                         return;
                                                     if (event.button === Qt.LeftButton) {
                                                         GlobalStates.overviewOpen = false;
-                                                        Hyprland.dispatch(`focuswindow address:${windowData.address}`);
+                                                        Hyprland.dispatch(`hl.dsp.focus({ window = 'address:${windowData.address}' })`);
                                                         event.accepted = true;
                                                     } else if (event.button === Qt.MiddleButton) {
-                                                        Hyprland.dispatch(`closewindow address:${windowData.address}`);
+                                                        Hyprland.dispatch(`hl.dsp.window.close({window = 'address:${windowData.address}'})`);
                                                         event.accepted = true;
                                                     }
                                                 }
@@ -859,16 +832,9 @@ Item {
                             implicitWidth: root.specialWorkspaceTileWidth
                             implicitHeight: root.specialWorkspaceTileHeight
                             radius: Appearance.rounding.screenRounding * root.scale
-                            color: showWallpaper ? "transparent" : ColorUtils.applyAlpha(
-                                root.glassMode
-                                    ? ColorUtils.mix(Appearance.colors.colSecondaryContainer, Appearance.colors.colLayer1, 0.58)
-                                    : ColorUtils.mix(Appearance.colors.colLayer2, Appearance.colors.colLayer1, 0.55),
-                                root.draggingTargetSpecialWorkspace === root.createSpecialWorkspaceTarget ? 0.90 : root.effectiveWorkspaceOpacity
-                            )
+                            color: showWallpaper ? "transparent" : ColorUtils.applyAlpha(root.glassMode ? ColorUtils.mix(Appearance.colors.colSecondaryContainer, Appearance.colors.colLayer1, 0.58) : ColorUtils.mix(Appearance.colors.colLayer2, Appearance.colors.colLayer1, 0.55), root.draggingTargetSpecialWorkspace === root.createSpecialWorkspaceTarget ? 0.90 : root.effectiveWorkspaceOpacity)
                             border.width: 1
-                            border.color: root.draggingTargetSpecialWorkspace === root.createSpecialWorkspaceTarget
-                                ? ColorUtils.applyAlpha(root.activeBorderColor, 0.96)
-                                : ColorUtils.applyAlpha(Appearance.colors.colSecondary, 0.46)
+                            border.color: root.draggingTargetSpecialWorkspace === root.createSpecialWorkspaceTarget ? ColorUtils.applyAlpha(root.activeBorderColor, 0.96) : ColorUtils.applyAlpha(Appearance.colors.colSecondary, 0.46)
 
                             Image {
                                 visible: createSpecialWorkspaceTile.showWallpaper
@@ -885,14 +851,7 @@ Item {
                                 visible: createSpecialWorkspaceTile.showWallpaper
                                 anchors.fill: parent
                                 radius: parent.radius
-                                color: ColorUtils.applyAlpha(
-                                    root.glassMode
-                                        ? ColorUtils.mix(Appearance.colors.colSecondaryContainer, Appearance.colors.colLayer0, 0.40)
-                                        : ColorUtils.mix(Appearance.colors.colLayer2, Appearance.colors.colLayer1, 0.55),
-                                    root.draggingTargetSpecialWorkspace === root.createSpecialWorkspaceTarget
-                                        ? Math.min(0.28, root.emptyWorkspaceWallpaperOverlayOpacity + 0.08)
-                                        : root.emptyWorkspaceWallpaperOverlayOpacity
-                                )
+                                color: ColorUtils.applyAlpha(root.glassMode ? ColorUtils.mix(Appearance.colors.colSecondaryContainer, Appearance.colors.colLayer0, 0.40) : ColorUtils.mix(Appearance.colors.colLayer2, Appearance.colors.colLayer1, 0.55), root.draggingTargetSpecialWorkspace === root.createSpecialWorkspaceTarget ? Math.min(0.28, root.emptyWorkspaceWallpaperOverlayOpacity + 0.08) : root.emptyWorkspaceWallpaperOverlayOpacity)
                             }
 
                             Rectangle {
@@ -913,9 +872,7 @@ Item {
                                     visible: !createSpecialWorkspaceTile.showWallpaper
                                     text: root.draggingTargetSpecialWorkspace === root.createSpecialWorkspaceTarget ? "Release" : "+"
                                     font.family: Appearance.font.family.expressive
-                                    font.pixelSize: root.draggingTargetSpecialWorkspace === root.createSpecialWorkspaceTarget
-                                        ? Appearance.font.pixelSize.larger * root.scale
-                                        : Appearance.font.pixelSize.huge * 1.25 * root.scale
+                                    font.pixelSize: root.draggingTargetSpecialWorkspace === root.createSpecialWorkspaceTarget ? Appearance.font.pixelSize.larger * root.scale : Appearance.font.pixelSize.huge * 1.25 * root.scale
                                     font.weight: Font.DemiBold
                                     color: ColorUtils.applyAlpha(Appearance.colors.colOnLayer1, 0.92)
                                     horizontalAlignment: Text.AlignHCenter
@@ -928,7 +885,7 @@ Item {
                                 onClicked: {
                                     const createdName = root.nextSpecialWorkspaceName();
                                     GlobalStates.overviewOpen = false;
-                                    Hyprland.dispatch(`togglespecialworkspace ${createdName}`);
+                                    Hyprland.dispatch(`hl.dsp.workspace.toggle_special('${createdName}')`);
                                 }
                             }
 
@@ -970,36 +927,36 @@ Item {
             Repeater { // Window repeater
                 model: ScriptModel {
                     values: {
-                        return ToplevelManager.toplevels.values.filter((toplevel) => {
-                            const address = `0x${toplevel.HyprlandToplevel.address}`
-                            var win = windowByAddress[address]
+                        return ToplevelManager.toplevels.values.filter(toplevel => {
+                            const address = `0x${toplevel.HyprlandToplevel.address}`;
+                            var win = windowByAddress[address];
                             if (root.isSpecialWorkspace(win))
                                 return false;
                             const minWorkspace = root.workspaceGroup * root.workspacesShown + 1 + workspaceOffset;
                             const maxWorkspace = (root.workspaceGroup + 1) * root.workspacesShown + workspaceOffset;
-                            const inWorkspaceGroup = (minWorkspace <= win?.workspace?.id && win?.workspace?.id <= maxWorkspace)
+                            const inWorkspaceGroup = (minWorkspace <= win?.workspace?.id && win?.workspace?.id <= maxWorkspace);
                             return inWorkspaceGroup;
                         }).sort((a, b) => {
                             // Proper stacking order based on Hyprland's window properties
-                            const addrA = `0x${a.HyprlandToplevel.address}`
-                            const addrB = `0x${b.HyprlandToplevel.address}`
-                            const winA = windowByAddress[addrA]
-                            const winB = windowByAddress[addrB]
+                            const addrA = `0x${a.HyprlandToplevel.address}`;
+                            const addrB = `0x${b.HyprlandToplevel.address}`;
+                            const winA = windowByAddress[addrA];
+                            const winB = windowByAddress[addrB];
 
                             // 1. Pinned windows are always on top
                             if (winA?.pinned !== winB?.pinned) {
-                                return winA?.pinned ? 1 : -1
+                                return winA?.pinned ? 1 : -1;
                             }
 
                             // 2. Floating windows above tiled windows
                             if (winA?.floating !== winB?.floating) {
-                                return winA?.floating ? 1 : -1
+                                return winA?.floating ? 1 : -1;
                             }
 
                             // 3. Within same category, sort by focus history
                             // Lower focusHistoryID = more recently focused = higher in stack
-                            return (winB?.focusHistoryID ?? 0) - (winA?.focusHistoryID ?? 0)
-                        })
+                            return (winB?.focusHistoryID ?? 0) - (winA?.focusHistoryID ?? 0);
+                        });
                     }
                 }
                 delegate: OverviewWindow {
@@ -1032,8 +989,8 @@ Item {
                         repeat: false
                         running: false
                         onTriggered: {
-                            window.x = Math.round(Math.max((windowData?.at[0] - (monitor?.x ?? 0) - (monitorData?.reserved?.[0] ?? 0)) * root.scale * window.widthRatio, 0) + xOffset)
-                            window.y = Math.round(Math.max((windowData?.at[1] - (monitor?.y ?? 0) - (monitorData?.reserved?.[1] ?? 0)) * root.scale * window.heightRatio, 0) + yOffset)
+                            window.x = Math.round(Math.max((windowData?.at[0] - (monitor?.x ?? 0) - (monitorData?.reserved?.[0] ?? 0)) * root.scale * window.widthRatio, 0) + xOffset);
+                            window.y = Math.round(Math.max((windowData?.at[1] - (monitor?.y ?? 0) - (monitorData?.reserved?.[1] ?? 0)) * root.scale * window.heightRatio, 0) + yOffset);
                         }
                     }
 
@@ -1048,51 +1005,52 @@ Item {
                         onExited: hovered = false
                         acceptedButtons: Qt.LeftButton | Qt.MiddleButton
                         drag.target: parent
-                        onPressed: (mouse) => {
-                            root.draggingFromWorkspace = windowData?.workspace.id
-                            root.draggingTargetSpecialWorkspace = ""
-                            window.pressed = true
-                            window.Drag.active = true
-                            window.Drag.source = window
-                            window.Drag.hotSpot.x = mouse.x
-                            window.Drag.hotSpot.y = mouse.y
+                        onPressed: mouse => {
+                            root.draggingFromWorkspace = windowData?.workspace.id;
+                            root.draggingTargetSpecialWorkspace = "";
+                            window.pressed = true;
+                            window.Drag.active = true;
+                            window.Drag.source = window;
+                            window.Drag.hotSpot.x = mouse.x;
+                            window.Drag.hotSpot.y = mouse.y;
                         }
                         onReleased: {
-                            const targetWorkspace = root.draggingTargetWorkspace
-                            const targetSpecialWorkspace = root.draggingTargetSpecialWorkspace
-                            window.pressed = false
-                            window.Drag.active = false
-                            root.draggingFromWorkspace = -1
-                            root.draggingTargetWorkspace = -1
-                            root.draggingTargetSpecialWorkspace = ""
+                            const targetWorkspace = root.draggingTargetWorkspace;
+                            const targetSpecialWorkspace = root.draggingTargetSpecialWorkspace;
+                            window.pressed = false;
+                            window.Drag.active = false;
+                            root.draggingFromWorkspace = -1;
+                            root.draggingTargetWorkspace = -1;
+                            root.draggingTargetSpecialWorkspace = "";
                             if (targetSpecialWorkspace === root.createSpecialWorkspaceTarget) {
-                                const createdName = root.nextSpecialWorkspaceName()
-                                Hyprland.dispatch(`movetoworkspacesilent special:${createdName}, address:${window.windowData?.address}`)
-                                updateWindowPosition.restart()
-                            }
-                            else if (targetSpecialWorkspace && targetSpecialWorkspace !== root.specialWorkspaceName(windowData)) {
-                                Hyprland.dispatch(`movetoworkspacesilent special:${targetSpecialWorkspace}, address:${window.windowData?.address}`)
-                                updateWindowPosition.restart()
-                            }
-                            else if (targetWorkspace !== -1 && targetWorkspace !== windowData?.workspace.id) {
-                                Hyprland.dispatch(`movetoworkspacesilent ${targetWorkspace}, address:${window.windowData?.address}`)
-                                updateWindowPosition.restart()
-                            }
-                            else {
-                                window.x = window.initX
-                                window.y = window.initY
+                                const createdName = root.nextSpecialWorkspaceName();
+                                //INFO: From normal TO special
+                                Hyprland.dispatch(`hl.dsp.window.move({workspace = 'special:${createdName}', follow = false, window = 'address:${window.windowData?.address}'})`);
+                                updateWindowPosition.restart();
+                            } else if (targetSpecialWorkspace && targetSpecialWorkspace !== root.specialWorkspaceName(windowData)) {
+                                // Idk
+                                Hyprland.dispatch(`hl.dsp.window.move({workspace = 'special:${targetSpecialWorkspace}', follow = false, window = 'address:${window.windowData?.address}'})`);
+                                updateWindowPosition.restart();
+                            } else if (targetWorkspace !== -1 && targetWorkspace !== windowData?.workspace.id) {
+                                //INFO: From normal TO normal
+                                Hyprland.dispatch(`hl.dsp.window.move({workspace = '${targetWorkspace}', follow = false, window = 'address:${window.windowData?.address}'})`);
+                                updateWindowPosition.restart();
+                            } else {
+                                window.x = window.initX;
+                                window.y = window.initY;
                             }
                         }
-                        onClicked: (event) => {
-                            if (!windowData) return;
+                        onClicked: event => {
+                            if (!windowData)
+                                return;
 
                             if (event.button === Qt.LeftButton) {
-                                GlobalStates.overviewOpen = false
-                                Hyprland.dispatch(`focuswindow address:${windowData.address}`)
-                                event.accepted = true
+                                GlobalStates.overviewOpen = false;
+                                Hyprland.dispatch(`hl.dsp.focus({ window = 'address:${windowData.address}' })`);
+                                event.accepted = true;
                             } else if (event.button === Qt.MiddleButton) {
-                                Hyprland.dispatch(`closewindow address:${windowData.address}`)
-                                event.accepted = true
+                                Hyprland.dispatch(`hl.dsp.window.close({window = 'address:${windowData.address}'})`);
+                                event.accepted = true;
                             }
                         }
 
