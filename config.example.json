@@ -8,19 +8,19 @@
     },
     "rounding": {
       "unsharpen": 2,
-      "verysmall": 8,
-      "small": 12,
-      "normal": 17,
-      "large": 23,
-      "full": 9999,
-      "screenRounding": 23,
-      "windowRounding": 18
+      "verysmall": 2,
+      "small": 2,
+      "normal": 2,
+      "large": 2,
+      "full": 2,
+      "screenRounding": 2,
+      "windowRounding": 2
     },
     "font": {
       "family": {
-        "main": "sans-serif",
-        "title": "sans-serif",
-        "expressive": "sans-serif"
+        "main": "JetBrainsMono Nerd Font",
+        "title": "JetBrainsMono Nerd Font",
+        "expressive": "JetBrainsMono Nerd Font"
       },
       "pixelSize": {
         "smaller": 12,

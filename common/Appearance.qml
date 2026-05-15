@@ -32,60 +32,77 @@ Singleton {
         active: root.colorSource === "matugen"
         source: "Appearance.colors.qml"
     }
+property QtObject defaultColors: QtObject {
+    property bool darkmode: true
+    // Rosé Pine Iris - Dark Variant
+    // Based on https://rosepinetheme.com/palette/ingredients/iris/
+    
+    // Primary - Iris purple
+    property color m3primary: "#c4a7e7"          // Iris (main purple)
+    property color m3onPrimary: "#1a1a2a"        // Dark text on primary
+    property color m3primaryContainer: "#3a2a5a" // Dark purple container
+    property color m3onPrimaryContainer: "#e0d4f0" // Light purple text
+    
+    // Secondary - Foam/Cyan accent
+    property color m3secondary: "#9ccfd8"        // Foam (cyan)
+    property color m3onSecondary: "#1a1a2a"      // Dark text
+    property color m3secondaryContainer: "#2a4a5a" // Dark cyan container
+    property color m3onSecondaryContainer: "#d4f0f8" // Light cyan text
+    
+    // Base colors
+    property color m3background: "#11121d"       // Dark base (slightly purple tint)
+    property color m3onBackground: "#e0def4"     // Main text (Rosé Pine text)
+    
+    // Surface colors - layered purples
+    property color m3surface: "#1f1d2e"          // Surface base
+    property color m3surfaceContainerLow: "#26233a" // Surface low
+    property color m3surfaceContainer: "#2a273f"    // Surface medium
+    property color m3surfaceContainerHigh: "#322f47" // Surface high
+    property color m3surfaceContainerHighest: "#3d3a52" // Surface highest
+    property color m3onSurface: "#e0def4"        // Surface text
+    
+    // Variants
+    property color m3surfaceVariant: "#2a273f"   // Surface variant
+    property color m3onSurfaceVariant: "#908caa" // Muted text
+    
+    // Inverse
+    property color m3inverseSurface: "#e0def4"   // Light surface
+    property color m3inverseOnSurface: "#11121d" // Dark text
+    
+    // Borders
+    property color m3outline: "#e0d4f0"          // Muted outline
+    property color m3outlineVariant: "#403d52"   // Darker outline variant
+    
+    // Shadow
+    property color m3shadow: "#000000"
+}
 
-    property QtObject defaultColors: QtObject {
-        property bool darkmode: true
-        property color m3primary: "#E5B6F2"
-        property color m3onPrimary: "#452152"
-        property color m3primaryContainer: "#5D386A"
-        property color m3onPrimaryContainer: "#F9D8FF"
-        property color m3secondary: "#D5C0D7"
-        property color m3onSecondary: "#392C3D"
-        property color m3secondaryContainer: "#534457"
-        property color m3onSecondaryContainer: "#F2DCF3"
-        property color m3background: "#161217"
-        property color m3onBackground: "#EAE0E7"
-        property color m3surface: "#161217"
-        property color m3surfaceContainerLow: "#1F1A1F"
-        property color m3surfaceContainer: "#231E23"
-        property color m3surfaceContainerHigh: "#2D282E"
-        property color m3surfaceContainerHighest: "#383339"
-        property color m3onSurface: "#EAE0E7"
-        property color m3surfaceVariant: "#4C444D"
-        property color m3onSurfaceVariant: "#CFC3CD"
-        property color m3inverseSurface: "#EAE0E7"
-        property color m3inverseOnSurface: "#342F34"
-        property color m3outline: "#988E97"
-        property color m3outlineVariant: "#4C444D"
-        property color m3shadow: "#000000"
-    }
-
-    property QtObject caelestiaColors: QtObject {
-        property bool darkmode: defaultColors.darkmode
-        property color m3primary: defaultColors.m3primary
-        property color m3onPrimary: defaultColors.m3onPrimary
-        property color m3primaryContainer: defaultColors.m3primaryContainer
-        property color m3onPrimaryContainer: defaultColors.m3onPrimaryContainer
-        property color m3secondary: defaultColors.m3secondary
-        property color m3onSecondary: defaultColors.m3onSecondary
-        property color m3secondaryContainer: defaultColors.m3secondaryContainer
-        property color m3onSecondaryContainer: defaultColors.m3onSecondaryContainer
-        property color m3background: defaultColors.m3background
-        property color m3onBackground: defaultColors.m3onBackground
-        property color m3surface: defaultColors.m3surface
-        property color m3surfaceContainerLow: defaultColors.m3surfaceContainerLow
-        property color m3surfaceContainer: defaultColors.m3surfaceContainer
-        property color m3surfaceContainerHigh: defaultColors.m3surfaceContainerHigh
-        property color m3surfaceContainerHighest: defaultColors.m3surfaceContainerHighest
-        property color m3onSurface: defaultColors.m3onSurface
-        property color m3surfaceVariant: defaultColors.m3surfaceVariant
-        property color m3onSurfaceVariant: defaultColors.m3onSurfaceVariant
-        property color m3inverseSurface: defaultColors.m3inverseSurface
-        property color m3inverseOnSurface: defaultColors.m3inverseOnSurface
-        property color m3outline: defaultColors.m3outline
-        property color m3outlineVariant: defaultColors.m3outlineVariant
-        property color m3shadow: defaultColors.m3shadow
-    }
+property QtObject caelestiaColors: QtObject {
+    property bool darkmode: defaultColors.darkmode
+    property color m3primary: defaultColors.m3primary
+    property color m3onPrimary: defaultColors.m3onPrimary
+    property color m3primaryContainer: defaultColors.m3primaryContainer
+    property color m3onPrimaryContainer: defaultColors.m3onPrimaryContainer
+    property color m3secondary: defaultColors.m3secondary
+    property color m3onSecondary: defaultColors.m3onSecondary
+    property color m3secondaryContainer: defaultColors.m3secondaryContainer
+    property color m3onSecondaryContainer: defaultColors.m3onSecondaryContainer
+    property color m3background: defaultColors.m3background
+    property color m3onBackground: defaultColors.m3onBackground
+    property color m3surface: defaultColors.m3surface
+    property color m3surfaceContainerLow: defaultColors.m3surfaceContainerLow
+    property color m3surfaceContainer: defaultColors.m3surfaceContainer
+    property color m3surfaceContainerHigh: defaultColors.m3surfaceContainerHigh
+    property color m3surfaceContainerHighest: defaultColors.m3surfaceContainerHighest
+    property color m3onSurface: defaultColors.m3onSurface
+    property color m3surfaceVariant: defaultColors.m3surfaceVariant
+    property color m3onSurfaceVariant: defaultColors.m3onSurfaceVariant
+    property color m3inverseSurface: defaultColors.m3inverseSurface
+    property color m3inverseOnSurface: defaultColors.m3inverseOnSurface
+    property color m3outline: defaultColors.m3outline
+    property color m3outlineVariant: defaultColors.m3outlineVariant
+    property color m3shadow: defaultColors.m3shadow
+}
 
     function loadCaelestiaPalette() {
         getCaelestiaScheme.running = true;
