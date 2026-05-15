@@ -44,7 +44,7 @@
   "overview": {
     "rows": 2,
     "columns": 5,
-    "scale": 0.16,
+    "scale": 0.10,
     "enable": true,
     "hideEmptyRows": true,
     "closeOnFocusLoss": true,
@@ -79,12 +79,12 @@
     "workspaceNumberBaseSize": 250
   },
   "position": {
-    "topMargin": 100
+    "topMargin": 50
   },
   "windowPreview": {
     "showIcons": true,
     "iconToWindowRatio": 0.25,
-    "iconToWindowRatioCompact": 0.45,
+    "iconToWindowRatioCompact": 0.35,
     "xwaylandIndicatorToIconRatio": 0.35,
     "inactiveMonitorOpacity": 0.4,
     "cropToFill": false

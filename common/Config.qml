@@ -142,13 +142,13 @@ Singleton {
         }
 
         property QtObject position: QtObject {
-            property int topMargin: root.readInt("position.topMargin", 100)
+            property int topMargin: root.readInt("position.topMargin", 50)
         }
 
         property QtObject windowPreview: QtObject {
             property bool showIcons: root.readBool("windowPreview.showIcons", true)
             property real iconToWindowRatio: root.readReal("windowPreview.iconToWindowRatio", 0.25)
-            property real iconToWindowRatioCompact: root.readReal("windowPreview.iconToWindowRatioCompact", 0.45)
+            property real iconToWindowRatioCompact: root.readReal("windowPreview.iconToWindowRatioCompact", 0.25)
             property real xwaylandIndicatorToIconRatio: root.readReal("windowPreview.xwaylandIndicatorToIconRatio", 0.35)
             property real inactiveMonitorOpacity: root.readReal("windowPreview.inactiveMonitorOpacity", 0.4)
             property bool cropToFill: root.readBool("windowPreview.cropToFill", false)
