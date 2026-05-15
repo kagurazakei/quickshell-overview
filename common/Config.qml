@@ -106,7 +106,7 @@ Singleton {
         property QtObject overview: QtObject {
             property int rows: root.readInt("overview.rows", 2)
             property int columns: root.readInt("overview.columns", 5)
-            property real scale: root.readReal("overview.scale", 0.16)
+            property real scale: root.readReal("overview.scale", 0.12)
             property bool enable: root.readBool("overview.enable", true)
             property bool hideEmptyRows: root.readBool("overview.hideEmptyRows", true)
             property bool closeOnFocusLoss: root.readBool("overview.closeOnFocusLoss", true)
